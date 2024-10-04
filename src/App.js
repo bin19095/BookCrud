@@ -1,25 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import BookList from './components/BookList';
 import BookCreate from './components/BookCreate';
-import axios from 'axios';
+import './components/style.css';
+import BooksContext from './context/books';
+
 
 function App() {
-  const [books, setBooks] = useState([]);
-  
-    const fetchBooks = async () => {
-    const response = await axios.get('http://localhost:3001/books');
-      setBooks(response.data);
-    };
-    useEffect(() => {
-      fetchBooks();
-    }, []);
-
-   const handleCreate = async (title) => {
-    const response = await axios.post('http://localhost:3001/books',{ title,
-      });
-    const updatedBooks = [...books, response.data];
-    setBooks(updatedBooks);
-   }
+  const { fetchBooks } = useContext(BooksContext);
+  useEffect(() => {
+    fetchBooks();
+  }, []);
 
    /*
    const handleCreate = (title) => {
@@ -46,13 +36,7 @@ function App() {
   //   });
   //   setBooks(updatedBooks);
   // }
-  const deleteBookById = async (id) =>{
-     await axios.delete(`http://localhost:3001/books/${id}`);
-   const updatedBooks = books.filter((book) =>{
-    return book.id!==id;
-   })
-    setBooks(updatedBooks);
-  }
+ 
 
   // const handleEdited = (id,newTitle) => {
   //   const updatedBooks = books.map((book) =>{
@@ -63,36 +47,23 @@ function App() {
   //   });
   //   setBooks(updatedBooks);
   // };
-  const handleEdited = async (id, newTitle) => {
-    try {
-      const response = await axios.put(`http://localhost:3001/books/${id}`, {
-        title: newTitle,
-      });
-      console.log(response.data);
-      const updatedBooks = books.map((book) =>{
-        if(book.id === id){
-          return {...book, ...response.data };
-        }
-        return book;
-      });
-      setBooks(updatedBooks);
-    } catch (error) {
-      console.error('There was an error updating the book!', error);
+  const [show,setShow] = useState(true);
+  const hideCreateBook = () => {
+    setShow( currentShowState => {
+      return !currentShowState;
     }
-   
-     
-    
+
+    )
   }
+let btnText= show ? "Hide" : " +Book";
 
   return (
     <div className="App">
-     <h4 className="is-size-3 has-text-weight-bold"> Reading List </h4>
-      <BookCreate  onCreate={handleCreate}/>
-      <BookList 
-      bookList={books} 
-      onDelete={deleteBookById}
-      editBook ={handleEdited}
-      />
+     <h4 className="is-size-3 has-text-centered has-text-weight-bold"> Reading List </h4>
+      {show ? <BookCreate/>: "" }
+      <BookList/>
+      <button className="btn-bottom button is-info" onClick={hideCreateBook}> {btnText} </button>
+   
   
     </div>
   );

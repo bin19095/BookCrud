@@ -1,10 +1,13 @@
 import { useState } from "react";
-function BookCreate( {onCreate}) {
-    const [ value, setValue ] = useState( '' );
+import './style.css';
+import useBooksContext from '../hooks/use-hooks-context';
 
+function BookCreate() {
+    const [ value, setValue ] = useState( '' );
+    const { handleCreate } = useBooksContext();
     const handleClick = (event) =>{
         event.preventDefault();
-        onCreate(value);
+        handleCreate(value);
         setValue('');
        
        
@@ -14,7 +17,7 @@ const handleChange = (event) =>{
     setValue(event.target.value);
 }
     return (   
-    <div className="book-create">
+    <div className="book-create book-cr-div">
         <h3>Add a Book</h3>
         <form onSubmit={handleClick}>
             <label>Title</label>
@@ -23,7 +26,7 @@ const handleChange = (event) =>{
                 Click me
             </button>
         </form>
-
+     
     </div>)
 
 

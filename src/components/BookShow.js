@@ -1,18 +1,21 @@
 import { useState } from 'react';
+import './style.css';
+import useBooksContext from '../hooks/use-hooks-context';
 import BookEdit from './BookEdit'
-function BookShow( {book, onRemove, editBook} ){
+function BookShow( {book} ){
     const [showEdit, setShowEdit ] = useState(false);
+    const {deleteBookById} = useBooksContext();
     const handleDeleteClick = () => {
-       onRemove(book.id);
+       deleteBookById(book.id);
     };
     const handleClickEdit = () => {
         setShowEdit(!showEdit);
     };
-    const handleSubmit = (id, newTitle) =>{
+    const handleSubmit = () =>{
         setShowEdit(false);
-        editBook(id,newTitle);
+       // handleEdited(id,newTitle);
     }
-   let content = <h3> {book.title} </h3>
+   let content = <div style={{width:'300', height:'36', fontSize:"40", fontWeight:"bolder"}}> {book.title} </div>
    if(showEdit){
     content = <BookEdit  book={book} onSubmit={handleSubmit} />;
    }
@@ -21,9 +24,9 @@ function BookShow( {book, onRemove, editBook} ){
                     src={`https://picsum.photos/seed/${book.id}/300/200`}/>;
 
 
-    return( <div className="book-show" style={{zIndex:'10', width:'300', height:'267'}}>
+    return( <div className="book-show book-pointer-show" style={{zIndex:'', width:'300', height:'250'}}>
         {testImg ? testImg: 'Loading'}
-        <div>    {content} </div>      
+        <div className="book-sh-div">    {content} </div>      
         <div className="actions">
             <button onClick={handleClickEdit} className="edit" >
                 Edit

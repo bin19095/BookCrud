@@ -1,61 +1,76 @@
-import { createContext, useState} from 'react';
-import axios from 'axios';
- 
+import { createContext, useState, useEffect } from 'react';
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import {db} from '../lib/firestoreConfig';
+
 const BooksContext = createContext();
 
-function Provider({ children }){
-    const [books, setBooks] = useState([]);
-  
-    const fetchBooks = async () => {
-    const response = await axios.get('http://localhost:3001/books');
-      setBooks(response.data);
-    };
+function Provider({ children }) {
+const [books, setBooks] = useState([]);
 
-    const handleCreate = async (title) => {
-        const response = await axios.post('http://localhost:3001/books',{ title,
-          });
-        const updatedBooks = [...books, response.data];
-        setBooks(updatedBooks);
-       }
+const booksCollection = collection(db, 'books');
 
-       const deleteBookById = async (id) =>{
-        await axios.delete(`http://localhost:3001/books/${id}`);
-      const updatedBooks = books.filter((book) =>{
-       return book.id!==id;
-      })
-       setBooks(updatedBooks);
-     }
-     
-     const handleEdited = async (id, newTitle) => {
-        try {
-          const response = await axios.put(`http://localhost:3001/books/${id}`, {
-            title: newTitle,
-          });
-          
-          const updatedBooks = books.map((book) =>{
-            if(book.id === id){
-              return {...book, ...response.data };
+//fetch books
+const fetchBooks = async () => {
+    try {
+        const querySnapshot = await getDocs(booksCollection);
+        const booksData = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            }));
+        setBooks(booksData);
+        } catch(error) {
+            console.error('Error fetching books', error);
             }
-            return book;
-          });
-          setBooks(updatedBooks);
-        } catch (error) {
-          console.error('There was an error updating the book!', error);
-        }
-       
-      }
-    
-  const valueToShare = {
-    books,
-    fetchBooks,
-    handleCreate,
-    deleteBookById,
-    handleEdited
-  };
+    }
 
-    return <BooksContext.Provider value={valueToShare}>
-        {children}
-    </BooksContext.Provider>
+//create  a book
+const handleCreate = async( title ) =>{
+    try{
+        const docRef = await addDoc(booksCollection, { title });
+        const newBook ={ id: docRef.id, title};
+        setBooks([...books, newBook]);
+        } catch(error) {
+             console.error('Error creating book', error);
+        }
+    }
+
+//Delete a Book by ID
+const deleteBookById = async(id) =>{
+    try{
+        const docRef = doc(db, "books", id);
+        await deleteDoc(docRef);
+        const updatedBooks = books.filter((book) => book.id !==id);
+        setBooks(updatedBooks);
+        } catch(error){
+            console.error("Error deleting book", error);        
+        }
+    }
+    // Edited Book
+const handleEdited = async (id, newTitle) => {
+    try {
+        const docRef = doc(db, "books", id);
+        await updateDoc(docRef, { title: newTitle});
+        
+        const updatedBooks = books.map(( book) =>
+            book.id ===id ? { ...book, title:newTitle } : book
+        );
+        setBooks(updatedBooks);
+    } catch(error){
+        console.log("Error updating book", error);
+    }
+};
+useEffect(() =>{
+    fetchBooks();
+
+},[]);
+
+return(
+    <BooksContext.Provider
+        value={{ books, fetchBooks, handleCreate, deleteBookById, handleEdited }}>
+            {children}
+
+        </BooksContext.Provider>
+);
 }
 export { Provider };
 export default BooksContext;

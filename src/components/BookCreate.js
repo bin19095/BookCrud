@@ -21,7 +21,7 @@ const handleChange = (event) =>{
         <h3>Add a Book</h3>
         <form onSubmit={handleClick}>
             <label>Title</label>
-            <input  className="input" value={value} onChange ={ handleChange } />
+            <input  className="input" value={ value } onChange ={ handleChange } />
             <button  className="button">
                 Click me
             </button>

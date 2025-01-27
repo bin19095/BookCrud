@@ -58,11 +58,12 @@ const handleEdited = async (id, newTitle) => {
     } catch(error){
         console.log("Error updating book", error);
     }
-};
+}
+
 useEffect(() =>{
     fetchBooks();
 
-},[]);
+}, [fetchBooks]);
 
 return(
     <BooksContext.Provider

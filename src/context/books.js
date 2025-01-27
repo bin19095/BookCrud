@@ -63,7 +63,7 @@ const handleEdited = async (id, newTitle) => {
 useEffect(() =>{
     fetchBooks();
 
-}, [fetchBooks]);
+}, []);
 
 return(
     <BooksContext.Provider
